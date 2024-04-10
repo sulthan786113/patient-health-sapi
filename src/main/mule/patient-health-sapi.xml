@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	
+	<flow name="patient-health-sapi-Flow" doc:id="b5d73003-3ce9-4eb7-a80d-e4d61fe4cc07" >
+		<http:listener doc:name="Listener" doc:id="f1415cf1-0ffc-48f5-858f-070fdf7e3e09" config-ref="HTTP_Listener_config" path="/get-patient-data"/>
+		<logger level="INFO" doc:name="Logger" doc:id="9d6d420b-f643-4c7d-9967-7b628d3b312b" message="Start************PatientHealth"/>
+		<flow-ref doc:name="flow-referene-to-get-patient-details-implementation-flow" doc:id="d3ddd21f-8e10-4aff-90fb-0be0ca79a2eb" name="get-Patient-details-implementation-flow"/>
+		<flow-ref doc:name="flow-referene-to-get-write-data-into-CSV-implementation-flow" doc:id="37ea7ccc-e743-40fa-8103-7c97ca8d5f5d" name="write-data-into-CSV-implementation-flowFlow"/>
+		<logger level="INFO" doc:name="Logger" doc:id="8a6f2dc9-9c99-4507-acae-7c01ee3955d2" message="End************PatientHealth"/>
+	</flow>
+</mule>

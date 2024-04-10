@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sockets="http://www.mulesoft.org/schema/mule/sockets"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/sockets http://www.mulesoft.org/schema/mule/sockets/current/mule-sockets.xsd">
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="74daf990-e7ac-4d5e-b184-4afcf23fd37e" >
+		<email:smtp-connection host="smtp.gmail.com" port="587" user="sulthanshaju2024@gmail.com" password="qgceeqnxwylrsaps">
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<flow name="write-data-into-CSV-implementation-flowFlow" doc:id="d2f388ba-e6a9-44cc-9154-644db5bb038a" >
+		<logger level="INFO" doc:name="Start Logger" doc:id="510f3f05-aba7-4716-8dac-ef6ecc9cea0b" message="Write Data Into CSV Implementation Flow Start"/>
+		<ee:transform doc:name="Transform Message" doc:id="34d693d3-3127-4e8c-9aa6-c91569f93f14" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(patient,index)->
+{
+	"PatientAddress" : patient.PatientAddress__c,
+	"PatientName" : patient.PatientName__c,
+	"Patient_Gender" : patient.Patient_Gender__c,
+	"Patient_Admission_Date" : patient.Patient_Admission_Date__c,
+	"Patient_Phone_Numer" : patient.Patient_Phone_Number__c,
+	"Patient_Diseases" : patient.Patient_Diseases__c 
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="Batch_Job_For-Write_Data-Into_CSV" doc:id="53dab78a-f4c9-4286-a2af-dde8c5a037b8" maxFailedRecords="-1">
+			<batch:process-records >
+				<batch:step name="Batch_Step_Success-Records" doc:id="0b7224e2-4968-4d6f-82c3-93aa4868fde9" acceptPolicy="ALL">
+					<ee:transform doc:name="Transform Message" doc:id="506a6706-efd3-4fc8-ac38-55c3e1882619" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv
+---
+payload]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<file:write doc:name="Write" doc:id="cb1eb254-2825-4f55-9860-121d304edf8a" config-ref="File_Config" path="Patient Data.csv" mode="APPEND"/>
+				</batch:step>
+				<batch:step name="Batch_Step_Fail_Records" doc:id="a3c9a303-edac-473b-aa9d-a5a454e99343" acceptPolicy="ONLY_FAILURES">
+					<ee:transform doc:name="Transform Message" doc:id="c92df72e-5e12-4865-9a07-5312f573e8e5" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv
+---
+payload]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<file:write doc:name="Write" doc:id="109b65b2-d0cc-4b30-b33f-6fd54292f959" config-ref="File_Config" path="Patient_Records.csv"/>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="5717d6cb-248b-4f7a-9c6d-3dfc1b11c454" message="#[output application/json --- payload]"/>
+				<ee:transform doc:name="Transform Message" doc:id="5ae49e95-15a3-4841-a165-154654013273" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<email:send doc:name="Send" doc:id="b22e2ad2-34dc-4b5c-a6dc-c259ab8bfa7d" config-ref="Email_SMTP" fromAddress="sulthanshaju2024@gmail.com" subject='"Failed Records Notification"'>
+			<email:to-addresses>
+				<email:to-address value="sulthan01555@gmail.com" />
+			</email:to-addresses>
+					<email:body contentType="text/plain" />
+		</email:send>
+			</batch:on-complete>
+		</batch:job>
+		<logger level="INFO" doc:name="End Logger" doc:id="db5787e3-5379-4baf-8b9e-d5d4452cdb50" message="End of Write Data Into CSV Implementation Flow "/>
+	</flow>
+</mule>

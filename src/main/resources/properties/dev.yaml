@@ -1,0 +1,12 @@
+http:
+ host: "localhost"
+ port: "8081"
+ 
+sf:
+ username: "sulthanshaju2024@gmail.com"
+ password: "Haris2022@"
+ secToken: "gUXuf9cxscyCuqGsDFBjgxf6t"
+ 
+file:
+ path: "C:\Patient Data"
+

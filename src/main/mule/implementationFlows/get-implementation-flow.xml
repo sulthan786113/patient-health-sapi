@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	
+	<flow name="get-Patient-details-implementation-flow" doc:id="3de19dc1-02ac-46e2-925c-751625dbb12c" >
+		<salesforce:query doc:name="get data from patient account in salesforce" doc:id="5b418f1f-075e-4f33-9141-3d03977e6947" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[Select PatientName__c,Patient_Admission_Date__c,Patient_Gender__c,Patient_Phone_Number__c,PatientAddress__c,Patient_Diseases__c from Patient__c]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="response payload" doc:id="0524e214-6535-488a-924d-94ef1499809f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
